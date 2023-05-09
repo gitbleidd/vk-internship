@@ -22,17 +22,31 @@ public class UsersContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.HasDefaultSchema(Constants.SchemaName);
+        
+        modelBuilder
+            .Entity<UserGroup>()
+            .Property(e => e.Code)
+            .HasConversion(
+                v => v.ToString(),
+                v => (UserGroup.Group)Enum.Parse(typeof(UserGroup.Group), v));
+
+        modelBuilder
+            .Entity<UserState>()
+            .Property(e => e.Code)
+            .HasConversion(
+                v => v.ToString(),
+                v => (UserState.State)Enum.Parse(typeof(UserState.State), v));
 
         modelBuilder.Entity<UserGroup>().HasData(new List<UserGroup>()
         {
-            new() { Id = 1, Code = "Admin" },
-            new() { Id = 2, Code = "User" }
+            new() { Id = 1, Code = UserGroup.Group.Admin },
+            new() { Id = 2, Code = UserGroup.Group.User }
         });
         
         modelBuilder.Entity<UserState>().HasData(new List<UserState>()
         {
-            new() { Id = 1, Code = "Active" },
-            new() { Id = 2, Code = "Blocked" }
+            new() { Id = 1, Code = UserState.State.Active },
+            new() { Id = 2, Code = UserState.State.Blocked }
         });
 
         base.OnModelCreating(modelBuilder);
