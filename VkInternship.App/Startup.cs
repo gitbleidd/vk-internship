@@ -2,6 +2,7 @@ using System.Reflection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
+using VkInternship.App.Filters;
 using VkInternship.Data;
 
 namespace VkInternship.App;
@@ -18,7 +19,10 @@ public class Startup
     public void ConfigureServices(IServiceCollection services)
     {
         services.AddAuthorization();
-        services.AddControllers();
+        services.AddControllers(options =>
+        {
+            options.Filters.Add<DatabaseExceptionFilter>();
+        });
         
         services.AddSwaggerGen(c =>
         {
