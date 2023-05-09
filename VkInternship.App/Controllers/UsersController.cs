@@ -1,3 +1,4 @@
+using System.Data;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -46,8 +47,10 @@ public class UsersController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<UserRegistrationInfo>> Post(UserRegistrationInfo userRegistrationInfo)
     {
-        // TODO add check for user creation in last 5 seconds 
-
+        // Чтобы гарантировать уникальность логинов пользователя, мы создаём их в транзакции
+        // с уровнем изоляции SERIALIZABLE.
+        await using var transaction = await _context.Database.BeginTransactionAsync(IsolationLevel.Serializable);
+        
         var user = await _context.Users
             .Include(u => u.UserState)
             .FirstOrDefaultAsync(u => u.UserState.Code == UserState.State.Active && u.Login == userRegistrationInfo.Login);
@@ -55,7 +58,7 @@ public class UsersController : ControllerBase
         if (user is not null)
             return BadRequest("User with this name already exists");
 
-        if (!Enum.TryParse(userRegistrationInfo.Group, out UserGroup.Group userGroup))
+        if (!Enum.TryParse(userRegistrationInfo.Group, true, out UserGroup.Group userGroup))
             return BadRequest("Unknown user group");
         
         if (userGroup == UserGroup.Group.Admin)
@@ -65,22 +68,34 @@ public class UsersController : ControllerBase
                 .Include(u => u.UserState)
                 .FirstOrDefaultAsync(u =>
                     u.UserState.Code == UserState.State.Active && u.UserGroup.Code == UserGroup.Group.Admin);
+            
             if (admin is not null)
                 return BadRequest("Admin already exits");
         }
         
-        var newUser = new User()
+        var newUser = new User
         {
             Login = userRegistrationInfo.Login,
             Password = userRegistrationInfo.Password, // TODO хеширование
-            UserState = new UserState() { Code = UserState.State.Active },
-            UserGroup = new UserGroup() { Code = userGroup }
+            UserState = new UserState { Code = UserState.State.Active },
+            UserGroup = new UserGroup { Code = userGroup }
         };
         
-        await _context.Users.AddAsync(newUser);
+        _context.Users.Add(newUser);
+        
+        // Имитация задержки создания пользователя 
+        await Task.Delay(TimeSpan.FromSeconds(5));
+        
         await _context.SaveChangesAsync();
+        await transaction.CommitAsync();
 
-        return Created("", userRegistrationInfo);
+        return Created("", new UserInfo
+        {
+            Id = newUser.Id,
+            Login = newUser.Login,
+            CreatedDate = newUser.CreatedDate,
+            Group = newUser.UserGroup.Code.ToString(),
+        });
     }
     
     [HttpDelete("id")]
@@ -89,6 +104,8 @@ public class UsersController : ControllerBase
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<ActionResult> Delete(int id)
     {
+        await using var transaction = await _context.Database.BeginTransactionAsync(IsolationLevel.Serializable);
+
         var user = await _context.Users
             .Include(u => u.UserState)
             .FirstOrDefaultAsync(u => u.Id == id);
@@ -97,7 +114,9 @@ public class UsersController : ControllerBase
             return NotFound("User not found");
 
         user.UserState.Code = UserState.State.Blocked;
+        
         await _context.SaveChangesAsync();
+        await transaction.CommitAsync();
         
         return NoContent();
     }
