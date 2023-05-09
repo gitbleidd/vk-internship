@@ -23,6 +23,7 @@ public class Startup
         {
             options.Filters.Add<DatabaseExceptionFilter>();
         });
+        services.AddApiVersioning();
         
         services.AddSwaggerGen(c =>
         {
