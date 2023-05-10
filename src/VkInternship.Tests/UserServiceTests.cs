@@ -59,12 +59,9 @@ public class UserServiceTests
         await context.SaveChangesAsync();
         
         // Act
-        var createUser2Result = await userService.CreateUserAsync(new UserRegistrationInfo
-        {
-            Login = "foo",
-            Password = "1234",
-            Group = UserGroup.Group.User.ToString()
-        });
+        var createUser2Result = await userService.CreateUserAsync(
+            new UserRegistrationInfo("foo", "1234", UserGroup.Group.User.ToString())
+        );
         
         // Assert
         Assert.Equal(new UserService.UserNameTaken(), createUser2Result.Value);
@@ -80,12 +77,8 @@ public class UserServiceTests
         var userService = new UserService(context, logger, memoryCache, _mapper);
         
         // Act
-        var createUserResult = await userService.CreateUserAsync(new UserRegistrationInfo
-        {
-            Login = "foo",
-            Password = "1234",
-            Group = "unknown group"
-        });
+        var createUserResult =
+            await userService.CreateUserAsync(new UserRegistrationInfo("foo", "1234", "unknown group"));
 
         // Assert
         Assert.Equal(new UserService.UnknownUserGroup(), createUserResult.Value);
@@ -113,12 +106,9 @@ public class UserServiceTests
         await context.SaveChangesAsync();
         
         // Act
-        var createUser2Result = await userService.CreateUserAsync(new UserRegistrationInfo
-        {
-            Login = "bar",
-            Password = "0987",
-            Group = UserGroup.Group.Admin.ToString()
-        });
+        var createUser2Result = await userService.CreateUserAsync(
+            new UserRegistrationInfo("bar", "0987", UserGroup.Group.Admin.ToString())
+        );
 
         // Assert
         Assert.Equal(new UserService.AdminAlreadyExists(), createUser2Result.Value);

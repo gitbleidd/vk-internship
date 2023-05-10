@@ -6,6 +6,10 @@ public enum ErrorResponseCode
     UserNameTaken,
     UnknownUserGroup,
     AdminAlreadyExists,
+    InvalidLoginOrPassword
 }
 
-public record ErrorResponse(ErrorResponseCode Code, string Description);
+public record ErrorResponse(
+    ErrorResponseCode Code, 
+    string Description
+    );
