@@ -8,4 +8,4 @@ public enum ErrorResponseCode
     AdminAlreadyExists,
 }
 
-public record ErrorResponse(ErrorResponseCode code, string description);
+public record ErrorResponse(ErrorResponseCode Code, string Description);

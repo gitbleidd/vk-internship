@@ -1,12 +1,6 @@
-using System.Data;
-using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using VkInternship.App.Models;
 using VkInternship.App.Services;
-using VkInternship.Data;
-using VkInternship.Data.Entities;
-using OneOf;
 
 namespace VkInternship.App.Controllers;
 

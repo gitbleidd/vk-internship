@@ -1,4 +1,3 @@
-using System.Collections.ObjectModel;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
