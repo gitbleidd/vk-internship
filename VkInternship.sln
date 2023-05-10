@@ -4,6 +4,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VkInternship.App", "VkInter
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VkInternship.Data", "VkInternship.Data\VkInternship.Data.csproj", "{ECA45853-34E2-4BC6-9F86-EA26FDFFC59D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VkInternship.Tests", "VkInternship.Tests\VkInternship.Tests.csproj", "{BFFB0F90-8293-4A0A-BDA7-13FDA0740F1A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +20,9 @@ Global
 		{ECA45853-34E2-4BC6-9F86-EA26FDFFC59D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{ECA45853-34E2-4BC6-9F86-EA26FDFFC59D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{ECA45853-34E2-4BC6-9F86-EA26FDFFC59D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BFFB0F90-8293-4A0A-BDA7-13FDA0740F1A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BFFB0F90-8293-4A0A-BDA7-13FDA0740F1A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BFFB0F90-8293-4A0A-BDA7-13FDA0740F1A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BFFB0F90-8293-4A0A-BDA7-13FDA0740F1A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
