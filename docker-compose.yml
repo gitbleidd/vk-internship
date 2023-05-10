@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  webapp:
+    build:
+      context: src
+    ports:
+      - 5000:5000
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:5000
+      - ConnectionStrings__DefaultConnection=User ID=postgres;Password=admin;Host=postgres;Port=5432;Database=vk_internship;
+    depends_on:
+      - postgres
+    networks:
+      - vk_internship_app_network
+  postgres:
+    image: postgres:latest
+    volumes:
+      - postgres-volume:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: admin
+    networks:
+      - vk_internship_app_network
+
+volumes:
+    postgres-volume:
+        external: false
+
+networks:
+  vk_internship_app_network:
+    external: false
+    name: vk-internship-app-network
+    driver: bridge
