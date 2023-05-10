@@ -53,13 +53,7 @@ public class UserService
             .Where(u => u.State.Code == UserState.State.Active)
             .OrderBy(u => u.Id)
             .Skip(offset).Take(limit)
-            .Select(u => new UserInfo()
-            {
-                Id = u.Id,
-                Login = u.Login,
-                CreatedDate = u.CreatedDate,
-                Group = u.Group.Code.ToString()
-            })
+            .Select(user => _mapper.Map<UserInfo>(user))
             .ToListAsync();
     }
 
@@ -119,6 +113,7 @@ public class UserService
             Login = newUser.Login,
             CreatedDate = newUser.CreatedDate,
             Group = group.Code.ToString(),
+            State = activeState.Code.ToString()
         };
     }
 

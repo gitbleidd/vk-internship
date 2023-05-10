@@ -188,7 +188,8 @@ public class UserServiceTests
             Id = user.Id,
             Login = user.Login,
             CreatedDate = user.CreatedDate,
-            Group = user.Group.Code.ToString()
+            Group = user.Group.Code.ToString(),
+            State = user.State.Code.ToString()
         };
         Assert.Equal(expectedUser, getUserAsync.Value);
     }
@@ -231,15 +232,15 @@ public class UserServiceTests
         {
             new UserInfo
             {
-                Id = user1.Id, Login = user1.Login, CreatedDate = user1.CreatedDate, Group = user1.Group.Code.ToString()
+                Id = user1.Id, Login = user1.Login, CreatedDate = user1.CreatedDate, Group = user1.Group.Code.ToString(), State = user1.State.Code.ToString()
             },
             new UserInfo
             {
-                Id = user2.Id, Login = user2.Login, CreatedDate = user2.CreatedDate, Group = user2.Group.Code.ToString()
+                Id = user2.Id, Login = user2.Login, CreatedDate = user2.CreatedDate, Group = user2.Group.Code.ToString(), State = user2.State.Code.ToString()
             },
             new UserInfo
             {
-                Id = user3.Id, Login = user3.Login, CreatedDate = user3.CreatedDate, Group = user3.Group.Code.ToString()
+                Id = user3.Id, Login = user3.Login, CreatedDate = user3.CreatedDate, Group = user3.Group.Code.ToString(), State = user3.State.Code.ToString()
             },
         };
 

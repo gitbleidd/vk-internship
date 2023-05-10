@@ -6,4 +6,5 @@ public record UserInfo
     public required string Login { get; init; }
     public DateTime CreatedDate { get; init; }
     public required string Group { get; init; }
+    public required string State { get; init; }
 }

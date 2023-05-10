@@ -9,6 +9,7 @@ public class MappingProfiles : Profile
     public MappingProfiles()
     {
         CreateMap<User, UserInfo>()
-            .ForMember(dest => dest.Group, act => act.MapFrom(src => src.Group.Code.ToString()));
+            .ForMember(dest => dest.Group, act => act.MapFrom(src => src.Group.Code.ToString()))
+            .ForMember(dest => dest.State, act => act.MapFrom(src => src.State.Code.ToString()));
     }
 }
