@@ -33,6 +33,15 @@ public class UsersController : ControllerBase
             Ok,
             _ => NotFound(new ErrorResponse(ErrorResponseCode.UserNotFound, "User not found")));
     }
+    
+    [HttpGet]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult> Get([FromQuery] int limit, [FromQuery] int offset)
+    {
+        var getUserResult = await _userService.GetUserAsync(limit, offset);
+        return getUserResult.Match<ActionResult>(Ok);
+    }
 
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created)]

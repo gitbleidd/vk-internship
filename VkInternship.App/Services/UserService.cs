@@ -43,6 +43,25 @@ public class UserService
         var userInfo = _mapper.Map<UserInfo>(user);
         return userInfo;
     }
+    
+    
+    public async Task<OneOf<List<UserInfo>>> GetUserAsync(int limit, int offset)
+    {
+        return await _context.Users
+            .Include(u => u.State)
+            .Include(u => u.Group)
+            .Where(u => u.State.Code == UserState.State.Active)
+            .OrderBy(u => u.Id)
+            .Skip(offset).Take(limit)
+            .Select(u => new UserInfo()
+            {
+                Id = u.Id,
+                Login = u.Login,
+                CreatedDate = u.CreatedDate,
+                Group = u.Group.Code.ToString()
+            })
+            .ToListAsync();
+    }
 
     public async Task<OneOf<UserInfo, UserNameTaken, UnknownUserGroup, AdminAlreadyExists>> CreateUserAsync(
         UserRegistrationInfo userRegistrationInfo)
