@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using VkInternship.App.Filters;
+using VkInternship.App.Services;
 using VkInternship.Data;
 
 namespace VkInternship.App;
@@ -18,12 +19,14 @@ public class Startup
 
     public void ConfigureServices(IServiceCollection services)
     {
+        services.AddMemoryCache();
+        services.AddScoped<UserService>();
+        
         services.AddAuthorization();
         services.AddControllers(options =>
         {
             options.Filters.Add<DatabaseExceptionFilter>();
         });
-        services.AddApiVersioning();
         
         services.AddSwaggerGen(c =>
         {
@@ -34,10 +37,7 @@ public class Startup
                 Description = "ASP.NET Core Web API for Vk Internship Task"
             });
             
-            c.CustomOperationIds(apiDescription =>
-            {
-                return apiDescription.TryGetMethodInfo(out MethodInfo methodInfo) ? methodInfo.Name : null;
-            });
+            c.CustomOperationIds(apiDescription => apiDescription.TryGetMethodInfo(out MethodInfo methodInfo) ? methodInfo.Name : null);
 
         });
 
@@ -59,6 +59,7 @@ public class Startup
             {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "Vk Internship Task v1");
                 c.DisplayOperationId();
+                c.RoutePrefix = string.Empty;
             });
         }
 

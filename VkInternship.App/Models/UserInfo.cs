@@ -1,6 +1,4 @@
-﻿using VkInternship.Data.Entities;
-
-namespace VkInternship.App.Models;
+﻿namespace VkInternship.App.Models;
 
 public record UserInfo
 {
