@@ -22,6 +22,17 @@ public class UsersContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.HasDefaultSchema(Constants.SchemaName);
+
+        modelBuilder.Entity<User>()
+            .HasIndex(u => new { u.Id, u.StateId });
+        
+        modelBuilder.Entity<UserGroup>()
+            .HasIndex(g => g.Code)
+            .IsUnique();
+        
+        modelBuilder.Entity<UserState>()
+            .HasIndex(g => g.Code)
+            .IsUnique();
         
         modelBuilder
             .Entity<UserGroup>()
@@ -39,14 +50,14 @@ public class UsersContext : DbContext
 
         modelBuilder.Entity<UserGroup>().HasData(new List<UserGroup>()
         {
-            new() { Id = 1, Code = UserGroup.Group.Admin },
-            new() { Id = 2, Code = UserGroup.Group.User }
+            new() { Id = (int)UserGroup.Group.Admin, Code = UserGroup.Group.Admin },
+            new() { Id = (int)UserGroup.Group.User, Code = UserGroup.Group.User }
         });
         
         modelBuilder.Entity<UserState>().HasData(new List<UserState>()
         {
-            new() { Id = 1, Code = UserState.State.Active },
-            new() { Id = 2, Code = UserState.State.Blocked }
+            new() { Id = (int)UserState.State.Active, Code = UserState.State.Active },
+            new() { Id = (int)UserState.State.Blocked, Code = UserState.State.Blocked }
         });
 
         base.OnModelCreating(modelBuilder);
