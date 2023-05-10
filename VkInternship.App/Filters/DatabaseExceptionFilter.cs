@@ -16,25 +16,34 @@ public class DatabaseExceptionFilter : Attribute, IExceptionFilter
     
     public void OnException(ExceptionContext context)
     {
-        if (context.Exception is DbUpdateException { InnerException: PostgresException pgException } exc)
+        var contentResult = new ContentResult
         {
-            if (_hostEnvironment.IsDevelopment())
+            StatusCode = StatusCodes.Status422UnprocessableEntity,
+        };
+        
+        switch (context.Exception)
+        {
+            // Ошибка при конфликте транзакций
+            case InvalidOperationException
             {
-                context.Result = new ContentResult
+                InnerException: DbUpdateException
                 {
-                    StatusCode = StatusCodes.Status422UnprocessableEntity,
-                    Content = $"{exc.Message}\n{pgException.Detail}" ,
-                };
-            }
-            else
+                    InnerException: PostgresException
+                    {
+                        SqlState: "40001"
+                    } postgresException
+                }
+            }:
             {
-                context.Result = new ContentResult
+                if (_hostEnvironment.IsDevelopment())
                 {
-                    StatusCode = StatusCodes.Status422UnprocessableEntity,
-                };
+                    contentResult.Content = postgresException.Detail;
+                }
+
+                context.Result = contentResult;
+                context.ExceptionHandled = true;
+                break;
             }
-            
-            context.ExceptionHandled = true;
         }
     }
 }
