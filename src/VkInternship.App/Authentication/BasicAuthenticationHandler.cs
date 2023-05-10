@@ -14,16 +14,19 @@ namespace VkInternship.App.Authentication;
 
 public class BasicAuthenticationHandler : AuthenticationHandler<AuthenticationSchemeOptions>
 {
+    private readonly ILogger<BasicAuthenticationHandler> _logger;
     private readonly AuthService _authService;
 
     public BasicAuthenticationHandler(
         IOptionsMonitor<AuthenticationSchemeOptions> options,
-        ILoggerFactory logger,
+        ILoggerFactory loggerFactory,
+        ILogger<BasicAuthenticationHandler> logger,
         UrlEncoder encoder,
         ISystemClock clock,
         AuthService authService) :
-        base(options, logger, encoder, clock)
+        base(options, loggerFactory, encoder, clock)
     {
+        _logger = logger;
         _authService = authService;
     }
 
@@ -47,25 +50,27 @@ public class BasicAuthenticationHandler : AuthenticationHandler<AuthenticationSc
             var password = credentials[1];
             authUserResult = await _authService.AuthenticateAsync(login, password);
         }
-        catch
+        catch (Exception exception)
         {
+            _logger.LogError(exception, "Invalid Authorization Header");
             return AuthenticateResult.Fail("Invalid Authorization Header");
         }
-        
-        if (authUserResult.IsT1)
-            return AuthenticateResult.Fail("Invalid Username or Password");
 
-        UserInfo userInfo = authUserResult.AsT0;
-        var claims = new[]
-        {
-            new Claim(ClaimTypes.NameIdentifier, userInfo.Id.ToString()),
-            new Claim(ClaimTypes.Name, userInfo.Login),
-            new Claim(ClaimTypes.Role, userInfo.Group)
-        };
-        var identity = new ClaimsIdentity(claims, Scheme.Name);
-        var principal = new ClaimsPrincipal(identity);
-        var ticket = new AuthenticationTicket(principal, Scheme.Name);
-
-        return AuthenticateResult.Success(ticket);
+        return authUserResult.Match<AuthenticateResult>(
+            userInfo =>
+            {
+                var claims = new[]
+                {
+                    new Claim(ClaimTypes.NameIdentifier, userInfo.Id.ToString()),
+                    new Claim(ClaimTypes.Name, userInfo.Login),
+                    new Claim(ClaimTypes.Role, userInfo.Group)
+                };
+                var identity = new ClaimsIdentity(claims, Scheme.Name);
+                var principal = new ClaimsPrincipal(identity);
+                var ticket = new AuthenticationTicket(principal, Scheme.Name);
+                return AuthenticateResult.Success(ticket);
+            },
+            _ => AuthenticateResult.Fail("Invalid Username or Password")
+        );
     }
 }
