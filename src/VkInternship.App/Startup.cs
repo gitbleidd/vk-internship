@@ -1,8 +1,10 @@
 using System.Reflection;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using VkInternship.App.Filters;
+using VkInternship.App.Authentication;
 using VkInternship.App.Services;
 using VkInternship.Data;
 
@@ -19,10 +21,10 @@ public class Startup
 
     public void ConfigureServices(IServiceCollection services)
     {
-        services.AddMemoryCache();
-        services.AddScoped<UserService>();
-        
         services.AddAuthorization();
+        services.AddAuthentication("BasicAuthentication")
+            .AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>("BasicAuthentication", null);
+        
         services.AddControllers(options =>
         {
             options.Filters.Add<DatabaseExceptionFilter>();
@@ -39,12 +41,39 @@ public class Startup
             
             c.CustomOperationIds(apiDescription => apiDescription.TryGetMethodInfo(out MethodInfo methodInfo) ? methodInfo.Name : null);
 
+            c.AddSecurityDefinition("basic", new OpenApiSecurityScheme
+            {
+                Name = "Authorization",
+                Type = SecuritySchemeType.Http,
+                Scheme = "basic",
+                In = ParameterLocation.Header,
+                Description = "Basic Authorization header using the Bearer scheme."
+            });
+            c.AddSecurityRequirement(new OpenApiSecurityRequirement
+            {
+                {
+                    new OpenApiSecurityScheme
+                    {
+                        Reference = new OpenApiReference
+                        {
+                            Type = ReferenceType.SecurityScheme,
+                            Id = "basic"
+                        }
+                    },
+                    new string[] { }
+                }
+            });
+
         });
 
         var connectionString = Configuration.GetConnectionString("DefaultConnection");
         services.AddDbContext<UsersContext>(options => options.UseNpgsql(connectionString));
+        
+        services.AddScoped<UserService>();
+        services.AddScoped<AuthService>();
 
         services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+        services.AddMemoryCache();
     }
 
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env, UsersContext usersContext)
@@ -65,6 +94,7 @@ public class Startup
 
         app.UseRouting();
         app.UseAuthentication();
+        app.UseAuthorization();
         
         app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
     }

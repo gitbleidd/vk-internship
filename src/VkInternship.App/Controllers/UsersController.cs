@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using VkInternship.App.Models;
 using VkInternship.App.Services;
@@ -9,12 +10,10 @@ namespace VkInternship.App.Controllers;
 public class UsersController : ControllerBase
 {
     private readonly UserService _userService;
-    private readonly ILogger<UsersController> _logger;
 
-    public UsersController(UserService userService, ILogger<UsersController> logger)
+    public UsersController(UserService userService)
     {
         _userService = userService;
-        _logger = logger;
     }
 
     [HttpGet("id")]
@@ -51,6 +50,7 @@ public class UsersController : ControllerBase
             _ => BadRequest(new ErrorResponse(ErrorResponseCode.AdminAlreadyExists, "Admin already exits")));
     }
     
+    [Authorize(Roles = "Admin")]
     [HttpDelete("id")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
