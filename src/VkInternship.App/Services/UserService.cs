@@ -87,10 +87,10 @@ public class UserService
         }
 
         var states = await GetCachedStatesAsync();
-        var activeState = states!.First(state => state.Code == UserState.State.Active);
+        var activeState = states.First(state => state.Code == UserState.State.Active);
 
         var groups = await GetCachedGroupsAsync();
-        var group = groups!.First(u => u.Code == registrationGroup);
+        var group = groups.First(u => u.Code == registrationGroup);
         
         var newUser = new User
         {
@@ -128,7 +128,7 @@ public class UserService
             return new UserNotFound();
 
         var states = await GetCachedStatesAsync();
-        var blockedState = states!.First(state => state.Code == UserState.State.Blocked);
+        var blockedState = states.First(state => state.Code == UserState.State.Blocked);
         user.State = blockedState;
         
         await _context.SaveChangesAsync();
@@ -137,17 +137,25 @@ public class UserService
         return new UserDeleted();
     }
 
-    private async Task<List<UserState>?> GetCachedStatesAsync() =>
-        await _memoryCache.GetOrCreateAsync("_states", async cacheEntry =>
+    private async Task<List<UserState>> GetCachedStatesAsync()
+    {
+        var cachedStates = await _memoryCache.GetOrCreateAsync("_states", async cacheEntry =>
         {
             cacheEntry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5);
             return await _context.UserStates.AsNoTracking().ToListAsync();
         });
-    
-    private async Task<List<UserGroup>?> GetCachedGroupsAsync() =>
-        await _memoryCache.GetOrCreateAsync("_groups", async cacheEntry =>
+        return cachedStates ?? new List<UserState>();
+    }
+
+
+    private async Task<List<UserGroup>> GetCachedGroupsAsync()
+    {
+        var cachedGroups = await _memoryCache.GetOrCreateAsync("_groups", async cacheEntry =>
         {
             cacheEntry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5);
             return await _context.UserGroups.AsNoTracking().ToListAsync();
         });
+        return cachedGroups ?? new List<UserGroup>();
+    }
+        
 }
